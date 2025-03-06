@@ -1,0 +1,54 @@
+import { ILojas } from "./ILojasContextProps"
+
+export interface IDetalhesChamado {
+    solicitacao: string
+    status: string
+    titulo: string
+}
+
+export interface IChamadoCompleto {
+    id: string
+    data: string
+    titulo: string
+    solicitacao: string
+    status: string
+    loja: ILojas
+}
+
+export const chamadocompletoInicial: IChamadoCompleto = {
+    id: "",
+    data: "",
+    titulo: "",
+    solicitacao: "",
+    status: "",
+    loja: {
+        sigla: "",
+        localizacao: "",
+        telefone: "",
+        email: "",
+        cnpj: "",
+        responsavel: "",
+        id: "",
+    },
+}
+
+export const detalhechamadoInicial: IDetalhesChamado = {
+    solicitacao: "",
+    status: "Pendente",
+    titulo: "",
+}
+
+export interface IAcoesChamadoContextProps {
+    addChamados: IDetalhesChamado
+    setAddChamados: React.Dispatch<React.SetStateAction<IDetalhesChamado>>
+    chamados: IChamadoCompleto
+    setChamados: React.Dispatch<React.SetStateAction<IChamadoCompleto>>
+    isDialogOpen: boolean
+    handleOpenDialog: () => void
+    handleCloseDialog: () => void
+    handleSalvarChamado: () => void
+    handleObterChamados: () => void
+    handleCancelar: () => void
+    chamadosPaginados: IChamadoCompleto[]
+}
+

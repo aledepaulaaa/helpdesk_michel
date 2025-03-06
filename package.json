@@ -1,0 +1,35 @@
+{
+  "name": "projeto-michel",
+  "version": "1.0.0",
+  "private": true,
+  "author": {
+    "name": "Alexandre de Paula",
+    "email": "contato@alexandredesenvolvedor.com"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^6.4.2",
+    "@mui/material": "^6.4.2",
+    "@next/env": "^15.1.6",
+    "axios": "^1.7.9",
+    "firebase": "^11.2.0",
+    "firebase-admin": "^13.0.2",
+    "material-ui-popup-state": "^5.3.3",
+    "next": "15.1.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "^5"
+  }
+}
