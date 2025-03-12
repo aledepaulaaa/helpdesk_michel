@@ -43,9 +43,6 @@ export interface IAcoesChamadoContextProps {
     setAddChamados: React.Dispatch<React.SetStateAction<IDetalhesChamado>>
     chamados: IChamadoCompleto
     setChamados: React.Dispatch<React.SetStateAction<IChamadoCompleto>>
-    isDialogOpen: boolean
-    handleOpenDialog: () => void
-    handleCloseDialog: () => void
     handleSalvarChamado: () => void
     handleObterChamados: () => void
     handleCancelar: () => void

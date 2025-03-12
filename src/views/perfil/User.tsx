@@ -39,23 +39,24 @@ export default function User() {
                     title={
                         <Stack direction="column" spacing={2} alignItems="center">
                             <AccountCircleIcon sx={{ fontSize: 60 }} />
-                            <Typography variant="h4" color="primary">
+                            <Typography variant="h6" color="primary">
                                 {dadosUsuario?.name}
                             </Typography>
                         </Stack>
                     }
                 />
                 <CardContent>
-                    <Stack spacing={2} alignItems="center" justifyContent="start">
-                        <Typography variant="h6">Email: {dadosUsuario?.email}</Typography>
-                        <Typography variant="h6">Cargo:
+                    <Stack spacing={2} alignItems="center">
+                        <Typography variant="body1">Email: {dadosUsuario?.email}</Typography>
+                        <Stack direction="row" alignItems="center">
+                            <Typography variant="body1">Cargo:</Typography>
                             <Chip
                                 label={dadosUsuario?.cargo || "Não informado"}
-                                color={dadosUsuario?.cargo === "Admin"  ? "success" : "info"}
+                                color={dadosUsuario?.cargo === "Admin" ? "success" : "info"}
                                 variant="filled"
                                 sx={{ ml: 1 }}
                             />
-                        </Typography>
+                        </Stack>
                     </Stack>
                 </CardContent>
             </Card>

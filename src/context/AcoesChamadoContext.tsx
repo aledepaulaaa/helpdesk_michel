@@ -1,23 +1,19 @@
 import React from "react"
 import { auth, db } from "../db/firebase"
-import { useLojaContext } from "./LojasContext"
 import { useTableContext } from "./TableContext"
 import { useLoadingAndStatusContext } from "./LoadingAndStatus"
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore"
 import { chamadocompletoInicial, detalhechamadoInicial, IAcoesChamadoContextProps, IChamadoCompleto, IDetalhesChamado } from "../interfaces/IAcoesChamadoContextProps"
 
 export const AcoesChamadoContext = React.createContext<IAcoesChamadoContextProps>({
-    addChamados: detalhechamadoInicial,
     chamados: chamadocompletoInicial,
-    setAddChamados: () => { },
-    setChamados: () => { },
-    isDialogOpen: false,
-    handleOpenDialog: () => { },
-    handleCloseDialog: () => { },
-    handleSalvarChamado: () => { },
-    handleCancelar: () => { },
-    handleObterChamados: () => { },
+    addChamados: detalhechamadoInicial,
     chamadosPaginados: [],
+    setChamados: () => { },
+    setAddChamados: () => { },
+    handleCancelar: () => { },
+    handleSalvarChamado: () => { },
+    handleObterChamados: () => { },
 })
 
 export const useChamadoContext = () => React.useContext(AcoesChamadoContext)
@@ -25,13 +21,9 @@ export const useChamadoContext = () => React.useContext(AcoesChamadoContext)
 export const AcoesChamadoProvider = ({ children }: { children: React.ReactNode }) => {
     const [chamados, setChamados] = React.useState<IChamadoCompleto>(chamadocompletoInicial)
     const [addChamados, setAddChamados] = React.useState<IDetalhesChamado>(detalhechamadoInicial)
-    const [isDialogOpen, setIsDialogOpen] = React.useState(false)
 
     const { page, rowsPerPage } = useTableContext()
-    const { setSuccess, setError, setLoading } = useLoadingAndStatusContext()
-
-    const handleOpenDialog = () => setIsDialogOpen(true)
-    const handleCloseDialog = () => setIsDialogOpen(false)
+    const { setSuccess, setError, setLoading, handleCloseDialog } = useLoadingAndStatusContext()
 
     const handleObterChamados = async () => {
         setLoading(true)
@@ -130,10 +122,7 @@ export const AcoesChamadoProvider = ({ children }: { children: React.ReactNode }
                 addChamados,
                 setAddChamados,
                 setChamados,
-                isDialogOpen,
                 chamadosPaginados,
-                handleOpenDialog,
-                handleCloseDialog,
                 handleSalvarChamado,
                 handleCancelar,
                 handleObterChamados,

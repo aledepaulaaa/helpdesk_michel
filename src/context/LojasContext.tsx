@@ -1,21 +1,18 @@
 import React from "react"
 import { auth, db } from "../db/firebase"
+import { initialUser, IUser } from "../interfaces/authcontext/IUser"
 import { useLoadingAndStatusContext } from "./LoadingAndStatus"
-import { ILojas, ILojasContextProps, lojasIniciais } from "../interfaces/ILojasContextProps"
-import { collection, deleteDoc, doc, getDocs, query, setDoc, where } from "firebase/firestore"
-import { useRouter } from "next/router"
+import { ILojasContextProps } from "../interfaces/ILojasContextProps"
+import { collection, deleteDoc, doc, getDocs, setDoc } from "firebase/firestore"
 
 export const LojasContext = React.createContext<ILojasContextProps>({
-    lojas: lojasIniciais,
-    carregarLojas: lojasIniciais,
+    lojas: initialUser,
+    usuarioSelecionado: initialUser,
+    carregarLojas: [],
     setLojas: () => { },
     setCarregarLojas: () => { },
-    isDialogOpen: false,
-    handleOpenDialog: () => { },
-    handleCloseDialog: () => { },
+    setUsuarioSelecionado: () => { },
     handleSalvarLoja: () => { },
-    handleCancelar: () => { },
-    handleObterLocalizacao: () => { },
     handleExcluirLoja: () => { },
     handleBuscarLojas: () => { },
 })
@@ -23,61 +20,42 @@ export const LojasContext = React.createContext<ILojasContextProps>({
 export const useLojaContext = () => React.useContext(LojasContext)
 
 export const LojasContextProvider = ({ children }: { children: React.ReactNode }) => {
-    const [lojas, setLojas] = React.useState<ILojas>(lojasIniciais)
-    const [carregarLojas, setCarregarLojas] = React.useState<ILojas>(lojasIniciais)
-    const [isDialogOpen, setIsDialogOpen] = React.useState(false)
-    const { setSuccess, setError, setLoading } = useLoadingAndStatusContext()
-    const router = useRouter()
-
-    const handleOpenDialog = () => setIsDialogOpen(true)
-    const handleCloseDialog = () => setIsDialogOpen(false)
-
-    const handleCancelar = () => {
-        setLojas(lojasIniciais)
-        handleCloseDialog()
-    }
+    const [lojas, setLojas] = React.useState<IUser>(initialUser)
+    const [carregarLojas, setCarregarLojas] = React.useState<any>({})
+    const [usuarioSelecionado, setUsuarioSelecionado] = React.useState<IUser>(initialUser)
+    const { setSuccess, setError, setLoading, handleCloseDialog } = useLoadingAndStatusContext()
 
     const handleBuscarLojas = async () => {
         setLoading(true)
         try {
-            const user = auth.currentUser
-            if (user) {
-                const lojasRef = collection(db, "lojas")
-                const q = query(lojasRef, where("id", "==", user.uid))
-                const querySnapshot = await getDocs(q)
+            const usuariosRef = collection(db, "lojas")
+            const querySnapshot = await getDocs(usuariosRef)
+            const lojasPorUsuario: { [userId: string]: any } = {}
 
-                if (!querySnapshot.empty) {
-                    const lojaData = querySnapshot.docs[0].data()
-                    setCarregarLojas(lojaData.loja as any)
-                    localStorage.setItem("lojas", JSON.stringify(lojaData.loja))
-                } else {
-                    setCarregarLojas(lojasIniciais)
-                }
-            } else {
-                setCarregarLojas(lojasIniciais)
-            }
+            querySnapshot.docs.forEach((doc) => {
+                lojasPorUsuario[doc.id] = doc.data()
+            })
+
+            localStorage.setItem("lojasAdmin", JSON.stringify(lojasPorUsuario))
+            setCarregarLojas(lojasPorUsuario as any)
+            setSuccess("Lojas carregadas com sucesso!")
         } catch (error) {
             console.error("Erro ao buscar lojas do Firestore: ", error)
             setError("Erro ao buscar dados das lojas.")
+            return null
         } finally {
             setLoading(false)
         }
     }
 
-    const handleSalvarLoja = async () => {
+    const handleSalvarLoja = async (userId: string) => {
         setLoading(true)
         try {
-            const user = auth.currentUser
-            if (user) {
-                const userRef = doc(db, "lojas", user.uid)
-                await setDoc(userRef, { loja: lojas, id: user.uid }, { merge: true })
-            } else {
-                setError("Não foi possível cadastrar sua loja, tente novamente")
-            }
+            const lojaDocRef = doc(db, "lojas", userId)
+            await setDoc(lojaDocRef, { loja: lojas.loja }, { merge: true })
 
-            localStorage.setItem("lojas", JSON.stringify(lojas))
             setSuccess("Loja cadastrada com sucesso!")
-            setCarregarLojas(lojas)
+            await handleBuscarLojas()
             handleCloseDialog()
         } catch (error) {
             console.error("Erro ao registrar loja: ", error)
@@ -87,22 +65,25 @@ export const LojasContextProvider = ({ children }: { children: React.ReactNode }
         }
     }
 
-    const handleExcluirLoja = async () => {
+    const handleExcluirLoja = async (userId: string) => {
         setLoading(true)
         try {
+            const userRef = doc(db, "lojas", userId)
+            await deleteDoc(userRef)
 
-            const user = auth.currentUser
-            if (user) {
-                const userRef = doc(db, "lojas", user.uid)
-                await deleteDoc(userRef)
-                setSuccess("Loja excluída com sucesso!")
-            } else {
-                setError("Não foi possível excluir sua loja, documento não encontrado")
+            const lojasDoLocalStorage = localStorage.getItem("lojasAdmin")
+            if (lojasDoLocalStorage) {
+                try {
+                    const lojasParseadas = JSON.parse(lojasDoLocalStorage)
+                    delete lojasParseadas[userId]; // Remove a loja pelo userId
+                    localStorage.setItem("lojasAdmin", JSON.stringify(lojasParseadas))
+                } catch (error) {
+                    console.error("Erro ao parsear e remover loja do localStorage:", error)
+                }
             }
 
-            localStorage.removeItem("lojas")
-            setCarregarLojas(lojasIniciais)
             setSuccess("Loja excluída com sucesso!")
+            await handleBuscarLojas()
             handleCloseDialog()
         } catch (error) {
             console.error("Erro ao excluir loja: ", error)
@@ -112,59 +93,18 @@ export const LojasContextProvider = ({ children }: { children: React.ReactNode }
         }
     }
 
-    const handleObterLocalizacao = async () => {
-        try {
-            setLoading(true)
-            if ("geolocation" in navigator) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const { latitude, longitude } = position.coords
-                        setLojas({ ...lojas, localizacao: `${latitude}, ${longitude}` })
-                    },
-                    (error) => {
-                        console.error("Erro ao obter a localização: ", error)
-                    }
-                )
-            } else {
-                console.error("Geolocalização não suportada pelo navegador.")
-            }
-        } catch (error) {
-            console.log("Problema ao obter localização: ", error)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    const lojaContextValue = React.useMemo(() => ({
-        lojas,
-        isDialogOpen,
-        carregarLojas,
-        setLojas,
-        setCarregarLojas,
-        handleSalvarLoja,
-        handleOpenDialog,
-        handleCloseDialog,
-        handleCancelar,
-        handleObterLocalizacao,
-        handleExcluirLoja,
-        handleBuscarLojas,
-    }), [ // Dependências do useMemo: inclua todos os valores que podem mudar e que estão no value
-        lojas,
-        isDialogOpen,
-        carregarLojas,
-        setLojas,
-        setCarregarLojas,
-        handleSalvarLoja,
-        handleOpenDialog,
-        handleCloseDialog,
-        handleCancelar,
-        handleObterLocalizacao,
-        handleExcluirLoja,
-        handleBuscarLojas,
-    ])
-
     return (
-        <LojasContext.Provider value={lojaContextValue}>
+        <LojasContext.Provider value={{
+            lojas,
+            carregarLojas,
+            usuarioSelecionado,
+            setLojas,
+            setCarregarLojas,
+            setUsuarioSelecionado,
+            handleSalvarLoja,
+            handleBuscarLojas,
+            handleExcluirLoja,
+        }}>
             {children}
         </LojasContext.Provider>
     )

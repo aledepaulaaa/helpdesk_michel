@@ -1,11 +1,11 @@
 import Image from "next/image"
-import AdicionarLojasDialog from "./AdicionarLojasDialog"
 import { Card, CardContent, CardHeader, Grid2, Typography } from "@mui/material"
 
-export default function LojasVazias() {
+export default function ChamadosVazios() {
     return (
         <Grid2 size={{ xs: 12 }} display="flex" flexDirection="column" justifyContent="center" alignItems="center">
             <Card
+                elevation={0}
                 sx={{
                     width: "100%",
                     maxWidth: 650,
@@ -27,9 +27,8 @@ export default function LojasVazias() {
                             gap={2}
                         >
                             <Typography textAlign="center" textTransform="uppercase" sx={{ fontSize: { xs: 16, md: 22 } }} fontWeight="bold" component="div">
-                                Adicione a sua loja para abrir novos chamados
+                                Não existem chamados ainda.
                             </Typography>
-                            <AdicionarLojasDialog />
                         </Grid2>
                     }
                 />

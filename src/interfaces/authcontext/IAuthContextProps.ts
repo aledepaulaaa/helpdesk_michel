@@ -1,18 +1,16 @@
 import React from "react"
-import { initialUser, IUser } from "./IUser"
+import { IUser } from "./IUser"
 
 export interface IAuthContextProps {
-    handleCreateUser: () => void
-    handleEnterCreateAccount: (event: React.KeyboardEvent<HTMLDivElement>) => void
-    handleLogout: () => void
     user: IUser
+    cargo: string
+    cargoSelecionado: string
     setUser: React.Dispatch<React.SetStateAction<IUser>>
-}
-
-export const initialAuthContextProps: IAuthContextProps = {
-    handleCreateUser: () => {},
-    handleEnterCreateAccount: () => {},
-    handleLogout: () => {},
-    user: initialUser,
-    setUser: () => {}
+    setCargo: React.Dispatch<React.SetStateAction<string>>
+    setCargoSelecionado: React.Dispatch<React.SetStateAction<string>>
+    handleLogout: () => void
+    handleCreateUser: () => void
+    handleVerificarUsuario: () => void
+    handleEnterCreateAccount: (event: React.KeyboardEvent<HTMLDivElement>) => void
+    handleAlterarCargoDoUsuario: (cargo: string) => void
 }

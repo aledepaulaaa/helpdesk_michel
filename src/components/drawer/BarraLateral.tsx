@@ -1,12 +1,14 @@
 import React from "react"
 import Image from "next/image"
 import { menuItems } from "./ItensDoMenu"
+import { useAuthContext } from "@/src/context/AuthContext"
 import { IBarraLateralProps } from "@/src/interfaces/IBarraLateralProps"
 import { useDashboardContext } from "@/src/context/DashboardContext"
 import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, Typography, useTheme } from "@mui/material"
 
 export default function BarraLateral({ isSmallScreen, sidebarExpanded, open, toggleOpen, drawerWidth }: IBarraLateralProps) {
     const theme = useTheme()
+    const { cargo } = useAuthContext()
     const { setCurrentView } = useDashboardContext()
 
     const handleItemClick = (route: string) => {
@@ -45,23 +47,49 @@ export default function BarraLateral({ isSmallScreen, sidebarExpanded, open, tog
                         style={{ height: "auto", width: 48, marginTop: 10 }}
                     />
                 </Box>
-                {menuItems.map((item, index) => (
-                    <ListItem key={index} disablePadding>
-                        <ListItemButton
-                            sx={{ display: "flex", alignItems: "center", flexDirection: "row", p: 2 }}
-                            onClick={() => handleItemClick(item.id)}
-                        >
-                            <ListItemIcon sx={{ color: theme.palette.primary.main }}>
-                                {<item.icon />}
-                            </ListItemIcon>
-                            {(sidebarExpanded || isSmallScreen) && (
-                                <Typography variant="body1" fontWeight={700}>
-                                    {item.label}
-                                </Typography>
-                            )}
-                        </ListItemButton>
-                    </ListItem>
-                ))}
+                {menuItems.map((item, index) => {
+                    if (item.id === "Gerir Lojas") {
+                        if (cargo === "Admin") {
+                            return (
+                                <ListItem key={index} disablePadding>
+                                    <ListItemButton
+                                        onClick={() => handleItemClick(item.id)}
+                                        sx={{ display: "flex", alignItems: "center", flexDirection: "row", p: 2 }}
+                                    >
+                                        <ListItemIcon sx={{ color: theme.palette.primary.main }}>
+                                            {<item.icon />}
+                                        </ListItemIcon>
+                                        {(sidebarExpanded || isSmallScreen) && (
+                                            <Typography variant="body1" fontWeight={700}>
+                                                {item.label}
+                                            </Typography>
+                                        )}
+                                    </ListItemButton>
+                                </ListItem>
+                            )
+                        } else {
+                            return null
+                        }
+                    } else {
+                        return (
+                            <ListItem key={index} disablePadding>
+                                <ListItemButton
+                                    sx={{ display: "flex", alignItems: "center", flexDirection: "row", p: 2 }}
+                                    onClick={() => handleItemClick(item.id)}
+                                >
+                                    <ListItemIcon sx={{ color: theme.palette.primary.main }}>
+                                        {<item.icon />}
+                                    </ListItemIcon>
+                                    {(sidebarExpanded || isSmallScreen) && (
+                                        <Typography variant="body1" fontWeight={700}>
+                                            {item.label}
+                                        </Typography>
+                                    )}
+                                </ListItemButton>
+                            </ListItem>
+                        )
+                    }
+                })}
             </List>
         </Drawer>
     )

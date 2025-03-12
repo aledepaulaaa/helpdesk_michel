@@ -6,15 +6,8 @@ import { useLoadingAndStatusContext } from "@/src/context/LoadingAndStatus"
 import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Grid2, TextField, Typography } from "@mui/material"
 
 export default function EnviarChamadosDialog() {
-    const { loading } = useLoadingAndStatusContext()
-    const {
-        addChamados,
-        setAddChamados,
-        isDialogOpen,
-        handleSalvarChamado,
-        handleOpenDialog,
-        handleCancelar
-    } = useChamadoContext()
+    const { loading, isDialogOpen, handleCancelar, handleOpenDialog } = useLoadingAndStatusContext()
+    const { addChamados, setAddChamados, handleSalvarChamado } = useChamadoContext()
 
     return (
         <Grid2 size={{ xs: 12 }}>
@@ -59,8 +52,8 @@ export default function EnviarChamadosDialog() {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="contained" color="error" onClick={handleCancelar}>Fechar</Button>
-                    <Button variant="contained" color="success" onClick={handleSalvarChamado}>
+                    <Button variant="contained" onClick={handleCancelar}>Fechar</Button>
+                    <Button variant="contained" onClick={handleSalvarChamado}>
                         {loading ? <CircularProgress size={20} /> : "Enviar Chamado"}
                     </Button>
                 </DialogActions>

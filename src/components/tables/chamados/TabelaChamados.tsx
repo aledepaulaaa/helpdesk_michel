@@ -1,7 +1,7 @@
 import React from "react"
+import Image from "next/image"
 import EnviarChamadosDialog from "./EnviarChamadosDialog"
 import PaginacaoTabelaChamados from "./PaginacaoTabelaChamados"
-import Image from "next/image"
 import { IChamadoCompleto } from "@/src/interfaces/IAcoesChamadoContextProps"
 import { useTableContext } from "@/src/context/TableContext"
 import { useChamadoContext } from "@/src/context/AcoesChamadoContext"
@@ -30,7 +30,7 @@ export default function TabelaChamados() {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {chamadosPaginados.length > 0 ? ( // Condição para verificar se há chamados
+                            {chamadosPaginados.length > 0 ? (
                                 chamadosPaginados.map((item: IChamadoCompleto, index: number) => (
                                     <TableRow key={index}>
                                         <TableCell>{item.titulo || ""}</TableCell>

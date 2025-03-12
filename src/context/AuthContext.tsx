@@ -1,24 +1,32 @@
 import React from "react"
 import { useRouter } from "next/router"
-import { useLoadingAndStatusContext } from "./LoadingAndStatus"
-import { IAuthContextProps } from "../interfaces/authcontext/IAuthContextProps"
-import { initialUser, IUser } from "../interfaces/authcontext/IUser"
 import { auth, db } from "../db/firebase"
-import { addDoc, collection} from "firebase/firestore"
+import { initialUser, IUser } from "../interfaces/authcontext/IUser"
+import { IAuthContextProps } from "../interfaces/authcontext/IAuthContextProps"
+import { useLoadingAndStatusContext } from "./LoadingAndStatus"
+import { addDoc, collection, getDocs, query, updateDoc, where } from "firebase/firestore"
 import { browserLocalPersistence, createUserWithEmailAndPassword, onAuthStateChanged, setPersistence, signOut } from "firebase/auth"
 
 const AuthContext = React.createContext<IAuthContextProps>({
-    handleCreateUser: () => { },
-    handleEnterCreateAccount: () => { },
-    handleLogout: () => { },
     user: initialUser,
-    setUser: () => { }
+    cargo: "",
+    cargoSelecionado: "",
+    setUser: () => { },
+    setCargo: () => { },
+    handleCreateUser: () => { },
+    handleLogout: () => { },
+    setCargoSelecionado: () => { },
+    handleVerificarUsuario: () => { },
+    handleEnterCreateAccount: () => { },
+    handleAlterarCargoDoUsuario: () => { },
 })
 
 export const useAuthContext = () => React.useContext(AuthContext)
 
 export const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = React.useState<IUser>(initialUser)
+    const [cargo, setCargo] = React.useState<string>("")
+    const [cargoSelecionado, setCargoSelecionado] = React.useState(cargo)
     const { setError, setSuccess, setLoading } = useLoadingAndStatusContext()
     const router = useRouter()
 
@@ -42,17 +50,21 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
                     id: auth.currentUser?.uid || "",
                     name: user.name,
                     email: user.email,
-                    password: user.password,
-                    cargo: user.cargo
+                    cargo: user.cargo,
+                    loja: user.loja,
                 })
 
                 await addDoc(collection(db, "usuarios"), {
-                    email: user.email, cargo: user.cargo, name: user.name, id: auth.currentUser?.uid
+                    email: user.email,
+                    cargo: user.cargo,
+                    name: user.name,
+                    id: auth.currentUser?.uid,
+                    loja: user.loja,
                 })
 
                 // Define o token de expiração para 1 hora no futuro
                 const expirationTime = new Date(Date.now() + 60 * 60 * 1000).toUTCString()
-                document.cookie = `token_exp=${expirationTime}; path=/;`
+                document.cookie = `token_exp=${expirationTime} path=/`
 
                 setSuccess("Conta criada com sucesso")
                 router.push("/")
@@ -81,7 +93,7 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
             await signOut(auth) // Aguarda o Firebase deslogar
 
             // Remove o token_exp definindo uma data de expiração no passado
-            document.cookie = "token_exp=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;"
+            document.cookie = "token_exp= path=/ expires=Thu, 01 Jan 1970 00:00:00 UTC"
 
             setUser(initialUser) // Reseta o estado do usuário
             // eliminar chamados do localStorage
@@ -98,27 +110,96 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
         }
     }
 
+    const handleVerificarUsuario = async () => {
+        setLoading(true)
+        try {
+            const userAuth = auth.currentUser?.uid
+            if (!userAuth) {
+                console.log("Usuário não autenticado (handleVerificarUsuario)")
+                return
+            }
+            const userRef = collection(db, "usuarios")
+            const q = query(userRef, where("id", "==", userAuth))
+            const querySnapshot = await getDocs(q)
+
+            if (querySnapshot.empty) {
+                console.log("Usuário não encontrado (handleVerificarUsuario)")
+                return
+            }
+
+            const userData = querySnapshot.docs[0].data()
+            const userCargo = userData.cargo || ""
+
+            if (userData.cargo === "Inativo") {
+                setCargo("Inativo")
+                localStorage.setItem("cargo", "Inativo")
+            } else {
+                setCargo(userData.cargo)
+                localStorage.setItem("cargo", userCargo)
+            }
+        } catch (error) {
+            console.log("Erro ao verificar usuário (handleVerificarUsuario): ", error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const handleAlterarCargoDoUsuario = async () => {
+        setLoading(true)
+        try {
+            const userAuth = auth.currentUser
+            const userRef = collection(db, "usuarios")
+            const q = query(userRef, where("id", "==", userAuth?.uid))
+            const querySnapshot = await getDocs(q)
+
+            if (querySnapshot.empty) {
+                console.log("Usuário não encontrado (handleAlterarCargoDoUsuario)")
+                return
+            }
+
+            const userDoc = querySnapshot.docs[0].ref
+            await updateDoc(userDoc, {
+                cargo: cargoSelecionado
+            })
+
+            setCargo(cargoSelecionado)
+            console.log("Cargo do usuário alterado com sucesso! ", cargoSelecionado)
+
+        } catch (error) {
+            console.log("Erro ao alterar cargo do usuário (handleAlterarCargoDoUsuario): ", error)
+        } finally {
+            setLoading(false)
+        }
+    }
 
     React.useEffect(() => {
         setPersistence(auth, browserLocalPersistence)
             .then(() => {
-                onAuthStateChanged(auth, (userFirebase) => {
-                    if (userFirebase) {
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+
                         setUser({
-                            id: userFirebase.uid,
-                            name: userFirebase.displayName || "Sem Nome",
-                            email: userFirebase.email || "",
+                            id: user.uid,
+                            name: user.displayName || "Sem Nome",
+                            email: user.email || "",
                             password: "",
-                            cargo: ""
+                            cargo: localStorage.getItem("cargo") || ""
                         })
 
-                        // Definir o cookie corretamente
-                        document.cookie = `email=${userFirebase.email} path=/`
+                        const cargoLocal = localStorage.getItem("cargo") || ""
+                        const cargoString = JSON.stringify(cargoLocal)
 
-                        // Redirecionar para a página principal
+                        if (!cargoString) {
+                            await handleVerificarUsuario()
+                        } else {
+                            const getCargoLocal = localStorage.getItem("cargo") || ""
+                            setCargo(getCargoLocal) // Define o cargo do localStorage
+                        }
                         router.push("/")
                     } else {
                         setUser(initialUser)
+                        setCargo("")
+                        localStorage.removeItem("cargo")
                     }
                 })
             })
@@ -127,15 +208,20 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
             })
     }, [])
 
-
     return (
         <AuthContext.Provider
             value={{
                 user,
+                cargo,
                 setUser,
+                setCargo,
+                cargoSelecionado,
+                setCargoSelecionado,
                 handleLogout,
                 handleCreateUser,
-                handleEnterCreateAccount
+                handleVerificarUsuario,
+                handleEnterCreateAccount,
+                handleAlterarCargoDoUsuario,
             }}
         >
             {children}

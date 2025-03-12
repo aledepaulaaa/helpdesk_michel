@@ -7,8 +7,7 @@ export default function ChamadoseLojasCarregados() {
     const { chamadoSelecionado, lojaSelecionada } = useAdminContext()
 
     return (
-        <Box
-            sx={{
+        <Box sx={{
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",

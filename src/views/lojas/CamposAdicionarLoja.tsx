@@ -1,14 +1,22 @@
+import React from "react"
 import { useLojaContext } from "@/src/context/LojasContext"
-import AddLocationIcon from "@mui/icons-material/AddLocation"
-import { useLoadingAndStatusContext } from "@/src/context/LoadingAndStatus"
-import { Button, CircularProgress, FormControl, TextField } from "@mui/material"
+import { FormControl, TextField } from "@mui/material"
 
 export default function CamposAdicionarLoja() {
-    const { loading } = useLoadingAndStatusContext()
-    const { lojas, setLojas, handleObterLocalizacao } = useLojaContext()
+    const { lojas, setLojas, usuarioSelecionado } = useLojaContext()
 
     return (
         <FormControl fullWidth>
+            <TextField
+                autoFocus
+                margin="dense"
+                label="Usuário"
+                disabled
+                fullWidth
+                variant="outlined"
+                type="text"
+                value={usuarioSelecionado?.name || ""}
+            />
             <TextField
                 autoFocus
                 margin="dense"
@@ -17,28 +25,8 @@ export default function CamposAdicionarLoja() {
                 variant="outlined"
                 placeholder="Ex: MC1, L2"
                 type="text"
-                value={lojas?.sigla || ""}
-                onChange={(e) => setLojas({ ...lojas, sigla: e.target.value })}
-            />
-            <TextField
-                margin="dense"
-                label="E-mail da Loja"
-                placeholder="Ex: loja@email.com"
-                fullWidth
-                multiline
-                variant="outlined"
-                value={lojas?.email || ""}
-                onChange={(e) => setLojas({ ...lojas, email: e.target.value })}
-            />
-            <TextField
-                margin="dense"
-                label="Telefone da Loja"
-                placeholder="Ex: (31) 99999-9999"
-                fullWidth
-                multiline
-                variant="outlined"
-                value={lojas?.telefone || ""}
-                onChange={(e) => setLojas({ ...lojas, telefone: e.target.value })}
+                value={lojas?.loja?.sigla || ""}
+                onChange={(e) => setLojas({ ...lojas, loja: { ...lojas.loja, sigla: e.target.value }})}
             />
             <TextField
                 margin="dense"
@@ -47,8 +35,8 @@ export default function CamposAdicionarLoja() {
                 fullWidth
                 multiline
                 variant="outlined"
-                value={lojas?.cnpj || ""}
-                onChange={(e) => setLojas({ ...lojas, cnpj: e.target.value })}
+                value={lojas?.loja?.cnpj || ""}
+                onChange={(e) => setLojas({ ...lojas, loja: { ...lojas.loja, cnpj: e.target.value }})}
             />
             <TextField
                 margin="dense"
@@ -57,28 +45,9 @@ export default function CamposAdicionarLoja() {
                 fullWidth
                 multiline
                 variant="outlined"
-                value={lojas?.responsavel || ""}
-                onChange={(e) => setLojas({ ...lojas, responsavel: e.target.value })}
+                value={lojas?.loja?.responsavel || ""}
+                onChange={(e) => setLojas({ ...lojas, loja: { ...lojas.loja, responsavel: e.target.value }})}
             />
-            <TextField
-                margin="dense"
-                label="Localização da Loja"
-                placeholder="Ex: coordenadas do Google Maps"
-                fullWidth
-                disabled
-                variant="outlined"
-                value={lojas?.localizacao || ""}
-                onChange={(e) => setLojas({ ...lojas, localizacao: e.target.value })}
-            />
-            <Button
-                sx={{ mt: 2 }}
-                variant="contained"
-                color="primary"
-                startIcon={<AddLocationIcon />}
-                onClick={handleObterLocalizacao}
-            >
-                {loading ? <CircularProgress /> : "Adicionar Localização"}
-            </Button>
         </FormControl>
     )
 }

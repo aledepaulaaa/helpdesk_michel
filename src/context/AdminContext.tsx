@@ -1,28 +1,27 @@
 import React from "react"
+import { IUser } from "../interfaces/authcontext/IUser"
 import { db, auth } from "../db/firebase"
-import { ILojasContextProps, ILojaSelecionada } from "../interfaces/ILojasContextProps"
 import { useLoadingAndStatusContext } from "./LoadingAndStatus"
-import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore"
+import { ILojasContextProps, ILojaSelecionada } from "../interfaces/ILojasContextProps"
+import { collection, getDocs, query, where } from "firebase/firestore"
 import { chamadoAdminInicial, IAdminContextProps, IGerenciarChamadosAdminProps, ILerChamadosAdminProps } from "../interfaces/IAdminContextProps"
 
 export const AdminContext = React.createContext<IAdminContextProps>({
     isAdmin: false,
-    isDialogOpen: false,
+    usuarios: [],
     lerLojasAdmin: [],
     lerChamadosAdmin: [],
     addChamadosAdmin: chamadoAdminInicial,
     chamadoSelecionado: null,
     lojaSelecionada: null,
     setIsAdmin: () => { },
-    setIsDialogOpen: () => { },
+    setUsuarios: () => { },
     setLerLojasAdmin: () => { },
     setLojaSelecionada: () => { },
     setaddChamadosAdmin: () => { },
     setLerChamadosAdmin: () => { },
     setChamadoSelecionado: () => { },
-    handleCancelar: () => { },
-    handleOpenDialog: () => { },
-    handleCloseDialog: () => { },
+    handleObterUsuarios: () => { },
     handleVerificarCargo: () => { },
     handleResponderChamado: () => { },
     handleCarregarChamados: () => { },
@@ -34,7 +33,7 @@ export const useAdminContext = () => React.useContext(AdminContext)
 
 export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     const [isAdmin, setIsAdmin] = React.useState<boolean>(false)
-    const [isDialogOpen, setIsDialogOpen] = React.useState(false)
+    const [usuarios, setUsuarios] = React.useState<IUser[]>([])
     const [lerChamadosAdmin, setLerChamadosAdmin] = React.useState<ILerChamadosAdminProps[]>([])
     const [addChamadosAdmin, setaddChamadosAdmin] = React.useState<IGerenciarChamadosAdminProps>(chamadoAdminInicial)
     const [lerLojasAdmin, setLerLojasAdmin] = React.useState<ILojasContextProps[]>([])
@@ -42,14 +41,22 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     const [chamadoSelecionado, setChamadoSelecionado] = React.useState<ILerChamadosAdminProps | null>(null)
     const { setLoading } = useLoadingAndStatusContext()
 
-    const handleOpenDialog = () => setIsDialogOpen(true)
-    const handleCloseDialog = () => setIsDialogOpen(false)
+    const handleObterUsuarios = async () => {
+        try {
+            const userDocRef = collection(db, "usuarios")
+            const querySnapshot = await getDocs(userDocRef)
 
-    const handleCancelar = () => {
-        setaddChamadosAdmin(chamadoAdminInicial)
-        setIsDialogOpen(false)
-        setChamadoSelecionado(null)
-        setLojaSelecionada(null)
+            if (querySnapshot.empty) {
+                console.log("Nenhum usuário encontrado")
+                return
+            }
+
+            const usuarios = querySnapshot.docs.map((doc) => doc.data())
+            setUsuarios(usuarios as IUser[])
+            localStorage.setItem("usuarios", JSON.stringify(usuarios))
+        } catch (error) {
+            console.log("Erro ao obter usuários: ", error)
+        }
     }
 
     const handleVerificarCargo = async () => {
@@ -81,6 +88,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
             setLoading(false)
         }
     }
+
     const handleResponderChamado = async () => {
         console.log("Responder Chamado function called")
     }
@@ -153,7 +161,6 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
                 setLojaSelecionada(null)
             }
 
-            handleOpenDialog()
         } catch (error) {
             console.error("Erro ao carregar detalhes do chamado e loja do localStorage:", error)
             setChamadoSelecionado(null)
@@ -163,7 +170,6 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
-
     React.useEffect(() => {
         handleCarregarChamados()
         handleCarregarLojasAdmin()
@@ -171,22 +177,20 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
 
     const adminContextValue = React.useMemo(() => ({
         isAdmin,
-        isDialogOpen,
+        usuarios,
         lerLojasAdmin,
         lojaSelecionada,
         addChamadosAdmin,
         lerChamadosAdmin,
         chamadoSelecionado,
         setIsAdmin,
-        setIsDialogOpen,
+        setUsuarios,
         setLerLojasAdmin,
         setLojaSelecionada,
         setLerChamadosAdmin,
         setaddChamadosAdmin,
         setChamadoSelecionado,
-        handleCancelar,
-        handleOpenDialog,
-        handleCloseDialog,
+        handleObterUsuarios,
         handleVerificarCargo,
         handleCarregarChamados,
         handleResponderChamado,
@@ -194,22 +198,20 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         handleCarregarChamadoLojaDialog,
     }), [
         isAdmin,
-        setIsAdmin,
-        isDialogOpen,
+        usuarios,
         lerLojasAdmin,
         lojaSelecionada,
         addChamadosAdmin,
         lerChamadosAdmin,
         chamadoSelecionado,
-        setIsDialogOpen,
+        setIsAdmin,
+        setUsuarios,
         setLerLojasAdmin,
         setLojaSelecionada,
         setaddChamadosAdmin,
         setLerChamadosAdmin,
         setChamadoSelecionado,
-        handleCancelar,
-        handleOpenDialog,
-        handleCloseDialog,
+        handleObterUsuarios,
         handleVerificarCargo,
         handleResponderChamado,
         handleCarregarChamados,

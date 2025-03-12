@@ -2,8 +2,8 @@ import React from "react"
 import { IDashboardProps } from "../interfaces/IDashboardProps"
 import Dashboard from "../components/dashboard/Dashboard"
 import Chamados from "../views/chamados/Chamados"
-import LojasView from "../views/lojas/LojasView"
 import Perfil from "../views/perfil/Perfil"
+import GerirLojas from "../views/lojas/GerirLojas"
 
 export const DashboardContext = React.createContext<IDashboardProps>({
     children: null,
@@ -21,8 +21,8 @@ export const DashboardProvider = ({ children }: { children: React.ReactNode }) =
         switch (currentView) {
             case "Chamados":
                 return <Chamados />
-            case "Lojas":
-                return <LojasView />
+            case "Gerir Lojas":
+                return <GerirLojas />
             case "Relátorios":
                 return <></>
             case "Perfil":
