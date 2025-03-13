@@ -5,9 +5,15 @@ import { useChamadoContext } from "@/src/context/AcoesChamadoContext"
 import { useLoadingAndStatusContext } from "@/src/context/LoadingAndStatus"
 import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Grid2, TextField, Typography } from "@mui/material"
 
+const dialogName = "EnviarChamadosDialog"
+
 export default function EnviarChamadosDialog() {
-    const { loading, isDialogOpen, handleCancelar, handleOpenDialog } = useLoadingAndStatusContext()
+    const { loading, dialogOpenName, handleCancelar, handleOpenDialog } = useLoadingAndStatusContext()
     const { addChamados, setAddChamados, handleSalvarChamado } = useChamadoContext()
+
+    const handleOpenEnviarChamadosDialog = () => {
+        handleOpenDialog(dialogName)
+    }
 
     return (
         <Grid2 size={{ xs: 12 }}>
@@ -15,12 +21,12 @@ export default function EnviarChamadosDialog() {
                 variant="contained"
                 color="info"
                 startIcon={<AddIcCallIcon />}
-                onClick={handleOpenDialog}
+                onClick={handleOpenEnviarChamadosDialog}
                 sx={{ mb: 2 }}
             >
                 abrir chamado
             </Button>
-            <Dialog open={isDialogOpen} onClose={handleCancelar} fullWidth>
+            <Dialog open={dialogOpenName === dialogName} onClose={handleCancelar} fullWidth>
                 <Grid2 display="flex" justifyContent="center" alignItems="center" gap={2}>
                     <DialogTitle>
                         <Typography variant="h5" fontWeight="bold" component="div">

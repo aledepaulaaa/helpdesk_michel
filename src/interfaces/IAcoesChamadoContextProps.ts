@@ -1,4 +1,4 @@
-import { ILojas } from "./ILojasContextProps"
+import { IUser } from "./authcontext/IUser"
 
 export interface IDetalhesChamado {
     solicitacao: string
@@ -12,7 +12,7 @@ export interface IChamadoCompleto {
     titulo: string
     solicitacao: string
     status: string
-    loja: ILojas
+    loja: IUser
 }
 
 export const chamadocompletoInicial: IChamadoCompleto = {
@@ -21,15 +21,19 @@ export const chamadocompletoInicial: IChamadoCompleto = {
     titulo: "",
     solicitacao: "",
     status: "",
-    loja: {
-        sigla: "",
-        localizacao: "",
-        telefone: "",
-        email: "",
-        cnpj: "",
-        responsavel: "",
+    loja:{
         id: "",
-    },
+        cargo: "",
+        loja:{
+            id: "",
+            sigla: "",
+            cnpj: "",
+            responsavel: "",
+        },
+        email: "",
+        name: "",
+        password: "",
+    }
 }
 
 export const detalhechamadoInicial: IDetalhesChamado = {

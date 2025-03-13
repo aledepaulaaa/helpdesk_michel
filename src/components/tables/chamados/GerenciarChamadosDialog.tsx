@@ -4,13 +4,15 @@ import { useAdminContext } from "@/src/context/AdminContext"
 import { useLoadingAndStatusContext } from "@/src/context/LoadingAndStatus"
 import { Button, CircularProgress, Dialog, DialogActions, DialogContent, Grid2, TextField } from "@mui/material"
 
+const dialogName = "GerenciarChamadosDialog"
+
 export default function GerenciarChamadosDialog() {
-    const { loading } = useLoadingAndStatusContext()
-    const { addChamadosAdmin, isDialogOpen, setaddChamadosAdmin, handleCancelar } = useAdminContext()
+    const { dialogOpenName, loading, handleCancelar } = useLoadingAndStatusContext()
+    const { addChamadosAdmin, setaddChamadosAdmin } = useAdminContext()
 
     return (
         <Grid2 size={{ xs: 12 }}>
-            <Dialog open={isDialogOpen} onClose={handleCancelar} fullWidth>
+            <Dialog open={dialogOpenName === dialogName} onClose={handleCancelar} fullWidth>
                 <DialogContent>
                     <ChamadoseLojasCarregados />
                     <TextField

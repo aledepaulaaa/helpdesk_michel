@@ -26,7 +26,7 @@ export default function useRememberAndForgotPass() {
         setRememberMe(checked)
         if (checked) {
             const encryptedPassword = await encryptPassword(user.password)
-            localStorage.setItem("rememberedPassword", encryptedPassword)
+            localStorage.setItem("rememberedPassword", encryptedPassword as string)
         } else {
             localStorage.removeItem("rememberedPassword")
         }
@@ -72,7 +72,7 @@ export default function useRememberAndForgotPass() {
     const handleResetPassword = async () => {
         setLoading(true)
         try {
-            await sendPasswordResetEmail(auth, user.email)
+            await sendPasswordResetEmail(auth, user?.email as string)
             setSuccess("Email enviado com sucesso!")
         } catch (error) {
             setError("Erro ao enviar email")
@@ -87,7 +87,7 @@ export default function useRememberAndForgotPass() {
     const handleLoginClick = async ({ handleLogin }: { handleLogin: () => void }) => {
         if (rememberMe) {
             const encryptedPassword = await encryptPassword(user.password)
-            localStorage.setItem('encryptedPassword', encryptedPassword)
+            localStorage.setItem('encryptedPassword', encryptedPassword as string)
         }
         handleLogin()
     }

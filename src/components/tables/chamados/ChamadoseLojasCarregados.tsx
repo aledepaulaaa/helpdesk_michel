@@ -42,16 +42,10 @@ export default function ChamadoseLojasCarregados() {
                         Loja: {lojaSelecionada.loja?.sigla}
                     </Typography>
                     <Typography variant="subtitle1" component="div" gutterBottom>
-                        Email: {lojaSelecionada.loja?.email}
-                    </Typography>
-                    <Typography variant="subtitle1" component="div" gutterBottom>
                         Responsável: {lojaSelecionada.loja?.responsavel}
                     </Typography>
                     <Typography variant="subtitle1" component="div" gutterBottom>
                         CNPJ: {lojaSelecionada.loja?.cnpj}
-                    </Typography>
-                    <Typography variant="subtitle1" component="div" gutterBottom>
-                        Localização: {lojaSelecionada.loja?.localizacao}
                     </Typography>
                 </Paper>
             ) : (
