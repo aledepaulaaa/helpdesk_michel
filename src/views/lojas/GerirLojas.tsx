@@ -8,6 +8,7 @@ import AddBusinessIcon from "@mui/icons-material/AddBusiness"
 import CloseIcon from "@mui/icons-material/Close"
 import AdicionarLojasDialog from "./AdicionarLojasDialog"
 import { Card, CardContent, CardHeader, Chip, Divider, Grid2, IconButton, Stack, Typography } from "@mui/material"
+import CargoDialog from "../perfil/CargoDialog"
 
 const dialogNameAdicionarLoja = "AdicionarLojasDialog"
 
@@ -76,6 +77,7 @@ export default function GerirLojas() {
                                             label={item.cargo}
                                             color={corCargo(item.cargo)}
                                         />
+                                       <CargoDialog dialogOpenName={`CargoDialog-${item.id}`} />
                                         <LojasDialog
                                             usuario={item}
                                             dialogName={`LojasDialog-${item.id}`}

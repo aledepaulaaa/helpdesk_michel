@@ -18,7 +18,6 @@ const AuthContext = React.createContext<IAuthContextProps>({
     setCargoSelecionado: () => { },
     handleVerificarUsuario: () => { },
     handleEnterCreateAccount: () => { },
-    handleAlterarCargoDoUsuario: () => { },
 })
 
 export const useAuthContext = () => React.useContext(AuthContext)
@@ -144,34 +143,6 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
         }
     }
 
-    const handleAlterarCargoDoUsuario = async () => {
-        setLoading(true)
-        try {
-            const userAuth = auth.currentUser
-            const userRef = collection(db, "usuarios")
-            const q = query(userRef, where("id", "==", userAuth?.uid))
-            const querySnapshot = await getDocs(q)
-
-            if (querySnapshot.empty) {
-                console.log("Usuário não encontrado (handleAlterarCargoDoUsuario)")
-                return
-            }
-
-            const userDoc = querySnapshot.docs[0].ref
-            await updateDoc(userDoc, {
-                cargo: cargoSelecionado
-            })
-
-            setCargo(cargoSelecionado)
-            console.log("Cargo do usuário alterado com sucesso! ", cargoSelecionado)
-
-        } catch (error) {
-            console.log("Erro ao alterar cargo do usuário (handleAlterarCargoDoUsuario): ", error)
-        } finally {
-            setLoading(false)
-        }
-    }
-
     React.useEffect(() => {
         setPersistence(auth, browserLocalPersistence)
             .then(() => {
@@ -183,7 +154,13 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
                             name: user.displayName || "Sem Nome",
                             email: user.email || "",
                             password: "",
-                            cargo: localStorage.getItem("cargo") || ""
+                            cargo: localStorage.getItem("cargo") || "",
+                            loja: {
+                                id: "",
+                                sigla: "",
+                                cnpj: "",
+                                responsavel: "",
+                            },
                         })
 
                         const cargoLocal = localStorage.getItem("cargo") || ""
@@ -221,7 +198,6 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
                 handleCreateUser,
                 handleVerificarUsuario,
                 handleEnterCreateAccount,
-                handleAlterarCargoDoUsuario,
             }}
         >
             {children}

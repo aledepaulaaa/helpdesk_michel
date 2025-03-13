@@ -12,5 +12,4 @@ export interface IAuthContextProps {
     handleCreateUser: () => void
     handleVerificarUsuario: () => void
     handleEnterCreateAccount: (event: React.KeyboardEvent<HTMLDivElement>) => void
-    handleAlterarCargoDoUsuario: (cargo: string) => void
 }

@@ -1,15 +1,9 @@
 import React from "react"
 import StorefrontIcon from "@mui/icons-material/Storefront"
 import StatusELoading from "@/src/components/statusloading/StatusELoading"
-import { IUser } from "@/src/interfaces/authcontext/IUser"
+import { ILojasDialogProps } from "@/src/interfaces/ILojasDialogProps"
 import { useLoadingAndStatusContext } from "@/src/context/LoadingAndStatus"
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid2, IconButton, Typography } from "@mui/material"
-
-interface ILojasDialogProps {
-    usuario: IUser
-    dialogName: string
-    lojaData: string
-}
 
 export default function LojasDialog({ usuario, dialogName, lojaData }: ILojasDialogProps) {
     const { dialogOpenName, handleCancelar, handleOpenDialog } = useLoadingAndStatusContext()

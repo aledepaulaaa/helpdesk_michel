@@ -2,7 +2,7 @@ import React from "react"
 import { IUser } from "../interfaces/authcontext/IUser"
 import { db, auth } from "../db/firebase"
 import { useLoadingAndStatusContext } from "./LoadingAndStatus"
-import { ILojasContextProps, ILojaSelecionada } from "../interfaces/ILojasContextProps"
+import { ILojasContextProps } from "../interfaces/ILojasContextProps"
 import { collection, getDocs, query, where } from "firebase/firestore"
 import { chamadoAdminInicial, IAdminContextProps, IGerenciarChamadosAdminProps, ILerChamadosAdminProps } from "../interfaces/IAdminContextProps"
 
@@ -37,8 +37,9 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     const [lerChamadosAdmin, setLerChamadosAdmin] = React.useState<ILerChamadosAdminProps[]>([])
     const [addChamadosAdmin, setaddChamadosAdmin] = React.useState<IGerenciarChamadosAdminProps>(chamadoAdminInicial)
     const [lerLojasAdmin, setLerLojasAdmin] = React.useState<ILojasContextProps[]>([])
-    const [lojaSelecionada, setLojaSelecionada] = React.useState<ILojaSelecionada | null>(null)
+    const [lojaSelecionada, setLojaSelecionada] = React.useState<IUser | null>(null)
     const [chamadoSelecionado, setChamadoSelecionado] = React.useState<ILerChamadosAdminProps | null>(null)
+    const [usuarioSelecionado, setUsuarioSelecionado] = React.useState<IUser>()
     const { setLoading } = useLoadingAndStatusContext()
 
     const handleObterUsuarios = async () => {
@@ -137,7 +138,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
 
             if (chamadosStorage && lojasStorage) {
                 const chamadosData = JSON.parse(chamadosStorage) as ILerChamadosAdminProps[]
-                const lojasData = JSON.parse(lojasStorage) as ILojaSelecionada[]
+                const lojasData = JSON.parse(lojasStorage) as IUser[]
 
                 const chamado = chamadosData.find(c => c.id === chamadoId)
                 const lojaIdDoChamado = chamado?.id
@@ -170,57 +171,46 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
+    const handleAlterarCargoUsuario = async () => {
+        setLoading(true)
+        try {
+
+
+        } catch (error) {
+            console.error("Erro ao alterar cargo do usuário: ", error)
+        }
+    }
+
     React.useEffect(() => {
         handleCarregarChamados()
         handleCarregarLojasAdmin()
     }, [])
 
-    const adminContextValue = React.useMemo(() => ({
-        isAdmin,
-        usuarios,
-        lerLojasAdmin,
-        lojaSelecionada,
-        addChamadosAdmin,
-        lerChamadosAdmin,
-        chamadoSelecionado,
-        setIsAdmin,
-        setUsuarios,
-        setLerLojasAdmin,
-        setLojaSelecionada,
-        setLerChamadosAdmin,
-        setaddChamadosAdmin,
-        setChamadoSelecionado,
-        handleObterUsuarios,
-        handleVerificarCargo,
-        handleCarregarChamados,
-        handleResponderChamado,
-        handleCarregarLojasAdmin,
-        handleCarregarChamadoLojaDialog,
-    }), [
-        isAdmin,
-        usuarios,
-        lerLojasAdmin,
-        lojaSelecionada,
-        addChamadosAdmin,
-        lerChamadosAdmin,
-        chamadoSelecionado,
-        setIsAdmin,
-        setUsuarios,
-        setLerLojasAdmin,
-        setLojaSelecionada,
-        setaddChamadosAdmin,
-        setLerChamadosAdmin,
-        setChamadoSelecionado,
-        handleObterUsuarios,
-        handleVerificarCargo,
-        handleResponderChamado,
-        handleCarregarChamados,
-        handleCarregarLojasAdmin,
-        handleCarregarChamadoLojaDialog,
-    ])
-
     return (
-        <AdminContext.Provider value={adminContextValue}>
+        <AdminContext.Provider
+            value={{
+                isAdmin,
+                usuarios,
+                lerLojasAdmin,
+                lojaSelecionada,
+                lerChamadosAdmin,
+                addChamadosAdmin,
+                chamadoSelecionado,
+                setIsAdmin,
+                setUsuarios,
+                setLerLojasAdmin,
+                setLojaSelecionada,
+                setaddChamadosAdmin,
+                setLerChamadosAdmin,
+                setChamadoSelecionado,
+                handleObterUsuarios,
+                handleVerificarCargo,
+                handleResponderChamado,
+                handleCarregarChamados,
+                handleCarregarLojasAdmin,
+                handleCarregarChamadoLojaDialog,
+            }}
+        >
             {children}
         </AdminContext.Provider>
     )
