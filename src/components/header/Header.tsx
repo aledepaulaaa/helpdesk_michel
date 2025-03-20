@@ -44,9 +44,9 @@ export default function Header({ toggleSidebar, isSmallScreen, sidebarExpanded, 
                             <Brightness4 />
                         </IconButton>
                     )}
-                    <IconButton>
+                    {/* <IconButton>
                         <Notifications sx={{ color: theme.palette.primary.main }} />
-                    </IconButton>
+                    </IconButton> */}
                     <AvatarDropDown />
                 </Box>
             </Toolbar>
