@@ -4,7 +4,7 @@ import { auth, db } from "../db/firebase"
 import { initialUser, IUser } from "../interfaces/authcontext/IUser"
 import { IAuthContextProps } from "../interfaces/authcontext/IAuthContextProps"
 import { useLoadingAndStatusContext } from "./LoadingAndStatus"
-import { addDoc, collection, getDocs, query, updateDoc, where } from "firebase/firestore"
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore"
 import { browserLocalPersistence, createUserWithEmailAndPassword, onAuthStateChanged, setPersistence, signOut } from "firebase/auth"
 
 const AuthContext = React.createContext<IAuthContextProps>({
@@ -50,7 +50,6 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
                     name: user.name,
                     email: user.email,
                     cargo: user.cargo,
-                    loja: user.loja,
                 })
 
                 await addDoc(collection(db, "usuarios"), {
@@ -58,7 +57,6 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
                     cargo: user.cargo,
                     name: user.name,
                     id: auth.currentUser?.uid,
-                    loja: user.loja,
                 })
 
                 // Define o token de expiração para 1 hora no futuro
@@ -99,6 +97,7 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
             localStorage.removeItem("chamados")
             localStorage.removeItem("ultimaChamada")
             localStorage.removeItem("lojas")
+            localStorage.removeItem("usuarios")
             localStorage.removeItem("userIdChamados")
             localStorage.removeItem("chamadosAdmin")
             localStorage.removeItem("lojasAdmin")
@@ -114,7 +113,7 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
         try {
             const userAuth = auth.currentUser?.uid
             if (!userAuth) {
-                console.log("Usuário não autenticado (handleVerificarUsuario)")
+                // console.log("Usuário não autenticado (handleVerificarUsuario)")
                 return
             }
             const userRef = collection(db, "usuarios")
@@ -155,12 +154,6 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
                             email: user.email || "",
                             password: "",
                             cargo: localStorage.getItem("cargo") || "",
-                            loja: {
-                                id: "",
-                                sigla: "",
-                                cnpj: "",
-                                responsavel: "",
-                            },
                         })
 
                         const cargoLocal = localStorage.getItem("cargo") || ""

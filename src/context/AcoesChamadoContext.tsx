@@ -16,7 +16,7 @@ export const AcoesChamadoContext = React.createContext<IAcoesChamadoContextProps
     handleObterChamados: () => { },
 })
 
-export const useChamadoContext = () => React.useContext(AcoesChamadoContext)
+export const useAcoesChamacoContext = () => React.useContext(AcoesChamadoContext)
 
 export const AcoesChamadoProvider = ({ children }: { children: React.ReactNode }) => {
     const [chamados, setChamados] = React.useState<IChamadoCompleto>(chamadocompletoInicial)
@@ -34,34 +34,20 @@ export const AcoesChamadoProvider = ({ children }: { children: React.ReactNode }
                 return
             }
 
-            const ultimaChamada = localStorage.getItem("ultimaChamada")
-            const dataAtual = new Date().toISOString()
+            // simplificar a busca do chamado pelo ID do usuário logado
+            const chamadosRef = collection(db, "chamados")
+            const q = query(chamadosRef, where("userId", "==", user.uid))
+            const querySnapshot = await getDocs(q)
 
-            // Se não houver dados ou os dados estiverem desatualizados (mais de 24h)
-            if (!ultimaChamada || new Date(ultimaChamada).getTime() + 86400000 < new Date().getTime()) {
-                const chamadosRef = collection(db, "chamados")
-                const q = query(chamadosRef, where("id", "==", user.uid))
-                const querySnapshot = await getDocs(q)
-
-                // Converte os documentos retornados em um objeto com chave igual ao doc.id
-                const chamadosData: { [key: string]: any } = {}
-                querySnapshot.forEach((doc) => {
-                    chamadosData[doc.id] = { id: doc.id, ...doc.data() }
-                })
-
-                console.log("Chamados do firebase:", chamadosData)
-
-                // Atualiza o localStorage
-                localStorage.setItem("chamados", JSON.stringify(chamadosData))
-                localStorage.setItem("ultimaChamada", dataAtual)
-                setChamados(chamadosData as IChamadoCompleto)
-            } else {
-                // Se os dados ainda forem recentes, utiliza os dados do localStorage
-                const chamadosStorage = localStorage.getItem("chamados")
-                if (chamadosStorage) {
-                    setChamados(JSON.parse(chamadosStorage))
-                }
+            if (querySnapshot.empty) {
+                setChamados(chamadocompletoInicial)
+                return
             }
+            const chamadosData = querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }))
+            setChamados(chamadosData as any) 
         } catch (error) {
             console.error("Erro ao obter chamados:", error)
             setError("Erro ao obter chamados")
@@ -76,9 +62,28 @@ export const AcoesChamadoProvider = ({ children }: { children: React.ReactNode }
             const user = auth.currentUser
             if (!user) throw new Error("Usuário não autenticado")
 
+            // Buscar na collection de lojas o ID da loja do respectivo usuário
+            const lojasRef = collection(db, "lojas")
+            // Busca lojas onde o campo 'userId' é igual ao user.uid
+            const q = query(lojasRef, where("userId", "==", user.uid)) // <-- CAMPO CORRETO
+            const querySnapshot = await getDocs(q)
+
+            // *** TRATAMENTO DE ERRO CORRETO ***
+            if (querySnapshot.empty) {
+                setError("Usuário não associado a nenhuma loja.")
+                setLoading(false)
+                return // Sai da função se não encontrar loja
+            }
+
+            // Obtém o ID da loja.  Assumindo que cada usuário tem apenas *uma* loja.
+            const lojaId = querySnapshot.docs[0].id  // Obtém o *ID do documento* da loja
+            // const lojaData = querySnapshot.docs[0].data() // Se você precisar de outros dados da loja
+            console.log("Loja ID:", lojaId)
+
             const novoChamado = {
                 data: new Date().toLocaleString(),
-                id: user.uid,
+                lojaId: lojaId,
+                userId: user.uid,
                 titulo: addChamados.titulo,
                 solicitacao: addChamados.solicitacao,
                 status: "Pendente",

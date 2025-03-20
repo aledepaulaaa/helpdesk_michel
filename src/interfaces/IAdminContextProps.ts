@@ -1,35 +1,33 @@
 import { IUser } from "./authcontext/IUser"
-import { ILojasContextProps } from "./ILojasContextProps"
+import { ILoja } from "./ILoja"
 
 export interface IAdminContextProps {
     isAdmin: boolean
     usuarios: IUser[]
-    lerLojasAdmin: ILojasContextProps[]
+    lerLojasAdmin: ILoja[]
     lerChamadosAdmin: ILerChamadosAdminProps[]
-    addChamadosAdmin: IGerenciarChamadosAdminProps
-    chamadoSelecionado: ILerChamadosAdminProps | null
-    lojaSelecionada: IUser | null
+    chamadoSelecionado: IChamadoDetalhado | null
+    lojaSelecionada: ILoja
     setUsuarios: React.Dispatch<React.SetStateAction<IUser[]>>
     setIsAdmin: React.Dispatch<React.SetStateAction<boolean>>
-    setLerLojasAdmin: React.Dispatch<React.SetStateAction<ILojasContextProps[]>>
-    setaddChamadosAdmin: React.Dispatch<React.SetStateAction<IGerenciarChamadosAdminProps>>
+    setLerLojasAdmin: React.Dispatch<React.SetStateAction<ILoja[]>>
     setLerChamadosAdmin: React.Dispatch<React.SetStateAction<ILerChamadosAdminProps[]>>
-    setChamadoSelecionado: React.Dispatch<React.SetStateAction<ILerChamadosAdminProps | null>>
-    setLojaSelecionada: React.Dispatch<React.SetStateAction<IUser | null>>
+    setChamadoSelecionado: React.Dispatch<React.SetStateAction<IChamadoDetalhado | null>>
+    setLojaSelecionada: React.Dispatch<React.SetStateAction<ILoja>>
     handleObterUsuarios: () => void
     handleVerificarCargo: () => void
     handleCarregarChamados: () => void
     handleCarregarLojasAdmin: () => void
-    handleResponderChamado: () => void
-    handleCarregarChamadoLojaDialog: (value: string) => void
+    handleAlterarCargoUsuario: (usuario: IUser, cargo: string) => void
 }
 
 export interface ILerChamadosAdminProps {
     id: string
     data: string
-    solicitacao: string
-    status: string
     titulo: string
+    status: string
+    solicitacao: string
+    lojaId: string
 }
 
 export interface IGerenciarChamadosAdminProps {
@@ -42,4 +40,9 @@ export const chamadoAdminInicial: IGerenciarChamadosAdminProps = {
     resposta: "",
     status: "",
     preco: ""
+}
+
+export interface IChamadoDetalhado {
+    chamado: ILerChamadosAdminProps
+    loja: ILoja
 }

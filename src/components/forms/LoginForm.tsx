@@ -1,21 +1,24 @@
 import useLogin from "@/src/hooks/login/useLogin"
 import router from "next/router"
 import FormPassword from "./FormPassword"
+import useRememberAndForgotPass from "@/src/hooks/forgotpassword/useRememberAndForgotPass"
 import { useAuthContext } from "@/src/context/AuthContext"
 import { useLoadingAndStatusContext } from "@/src/context/LoadingAndStatus"
-import useRememberAndForgotPass from "@/src/hooks/forgotpassword/useRememberAndForgotPass"
-import { Alert, Box, Button, Checkbox, CircularProgress, FormControl, Grid2, TextField, Typography } from "@mui/material"
-import { theme } from "@/src/theme/theme"
+import { Alert, Button, CircularProgress, FormControl, Grid2, TextField, Typography } from "@mui/material"
 
 export default function LoginForm() {
     const { user, setUser } = useAuthContext()
-    const { loading, error, success } = useLoadingAndStatusContext()
     const { handleEnterLogin, handleLogin } = useLogin()
-    const { rememberMe, handleRemember, handleLoginClick } = useRememberAndForgotPass()
+    const { handleLoginClick } = useRememberAndForgotPass()
+    const { loading, error, success } = useLoadingAndStatusContext()
 
     return (
         <Grid2 container>
-            <FormControl fullWidth sx={{ gap: 4, alignItems: "center" }} onKeyDown={(event) => handleEnterLogin(event)}>
+            <FormControl
+                fullWidth
+                sx={{ gap: 4, alignItems: "center" }}
+                onKeyDown={(event) => handleEnterLogin(event)}
+            >
                 <Grid2
                     size={{ xs: 12 }}
                     display="flex"
@@ -42,17 +45,6 @@ export default function LoginForm() {
                         justifyContent="space-between"
                         flexDirection={{ xs: "column", md: "row" }}
                     >
-                        <Box display="flex" alignItems="center">
-                            <Checkbox
-                                size="small"
-                                sx={{ width: 30 }}
-                                checked={rememberMe}
-                                onChange={(e) => handleRemember(e.target.checked)}
-                            />
-                            <Typography variant="body2">
-                                Relembre-me
-                            </Typography>
-                        </Box>
                         <Typography variant="body2">
                             Esqueceu a senha?
                             <a

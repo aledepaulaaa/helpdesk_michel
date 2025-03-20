@@ -3,12 +3,13 @@ import { IUser } from "@/src/interfaces/authcontext/IUser"
 import { useAdminContext } from "@/src/context/AdminContext"
 import { useLojaContext } from "@/src/context/LojasContext"
 import { useLoadingAndStatusContext } from "@/src/context/LoadingAndStatus"
+import CargoDialog from "../perfil/CargoDialog"
+import ModeIcon from "@mui/icons-material/Mode"
 import LojasDialog from "./LojasDialog"
 import AddBusinessIcon from "@mui/icons-material/AddBusiness"
 import CloseIcon from "@mui/icons-material/Close"
 import AdicionarLojasDialog from "./AdicionarLojasDialog"
 import { Card, CardContent, CardHeader, Chip, Divider, Grid2, IconButton, Stack, Typography } from "@mui/material"
-import CargoDialog from "../perfil/CargoDialog"
 
 const dialogNameAdicionarLoja = "AdicionarLojasDialog"
 
@@ -17,6 +18,8 @@ export default function GerirLojas() {
     const { handleOpenDialog } = useLoadingAndStatusContext()
     const { carregarLojas, setUsuarioSelecionado, handleBuscarLojas, handleExcluirLoja } = useLojaContext()
     const [lojasUsuarios, setLojasUsuarios] = React.useState<any>({})
+    const [cargoDialogOpen, setCargoDialogOpen] = React.useState<boolean>(false)
+    const [usuarioParaEditar, setUsuarioParaEditar] = React.useState<IUser | null>(null)
 
     React.useEffect(() => {
         const loadLojas = async () => {
@@ -44,6 +47,16 @@ export default function GerirLojas() {
     const handleOpenUserDialog = (usuario: IUser) => {
         setUsuarioSelecionado(usuario)
         handleOpenDialog(dialogNameAdicionarLoja)
+    }
+
+    const handleOpenCargoDialog = (usuario: IUser) => {
+        setUsuarioParaEditar(usuario)
+        setCargoDialogOpen(true)
+    }
+    
+    const handleCloseCargoDialog = () => {
+        setCargoDialogOpen(false)
+        setUsuarioParaEditar(null)
     }
 
     const handleDeleteLojaUusuario = async (userId: string) => {
@@ -77,7 +90,9 @@ export default function GerirLojas() {
                                             label={item.cargo}
                                             color={corCargo(item.cargo)}
                                         />
-                                       <CargoDialog dialogOpenName={`CargoDialog-${item.id}`} />
+                                        <IconButton onClick={() => handleOpenCargoDialog(item)}>
+                                            <ModeIcon color="primary" />
+                                        </IconButton>
                                         <LojasDialog
                                             usuario={item}
                                             dialogName={`LojasDialog-${item.id}`}
@@ -93,14 +108,7 @@ export default function GerirLojas() {
                             }
                         />
                         <Divider />
-                        <CardContent
-                            sx={{
-                                display: "flex",
-                                flexDirection: "row",
-                                alignItems: "center",
-                                gap: 2
-                            }}
-                        >
+                        <CardContent sx={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 2 }}>
                             <Typography variant="body1">E-mail: {item.email}</Typography>
                             <IconButton onClick={() => handleOpenUserDialog(item)}>
                                 <AddBusinessIcon color="primary" fontSize="large" />
@@ -109,6 +117,13 @@ export default function GerirLojas() {
                     </Card>
                 ))}
                 <AdicionarLojasDialog />
+                {usuarioParaEditar && (
+                    <CargoDialog
+                        usuario={usuarioParaEditar}
+                        isOpen={cargoDialogOpen}
+                        onClose={handleCloseCargoDialog}
+                    />
+                )}
             </Stack>
         </Grid2>
     )

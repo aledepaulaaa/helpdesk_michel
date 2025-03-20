@@ -1,32 +1,29 @@
-import React from "react"
+import React, { useMemo } from "react"
 import { IUser } from "../interfaces/authcontext/IUser"
 import { db, auth } from "../db/firebase"
+import { ILoja, lojaInicial } from "../interfaces/ILoja"
 import { useLoadingAndStatusContext } from "./LoadingAndStatus"
-import { ILojasContextProps } from "../interfaces/ILojasContextProps"
-import { collection, getDocs, query, where } from "firebase/firestore"
-import { chamadoAdminInicial, IAdminContextProps, IGerenciarChamadosAdminProps, ILerChamadosAdminProps } from "../interfaces/IAdminContextProps"
+import { collection, getDocs, query, updateDoc, where } from "firebase/firestore"
+import { IAdminContextProps, IChamadoDetalhado, ILerChamadosAdminProps } from "../interfaces/IAdminContextProps"
 
 export const AdminContext = React.createContext<IAdminContextProps>({
     isAdmin: false,
     usuarios: [],
     lerLojasAdmin: [],
     lerChamadosAdmin: [],
-    addChamadosAdmin: chamadoAdminInicial,
     chamadoSelecionado: null,
-    lojaSelecionada: null,
+    lojaSelecionada: lojaInicial,
     setIsAdmin: () => { },
     setUsuarios: () => { },
     setLerLojasAdmin: () => { },
     setLojaSelecionada: () => { },
-    setaddChamadosAdmin: () => { },
     setLerChamadosAdmin: () => { },
     setChamadoSelecionado: () => { },
     handleObterUsuarios: () => { },
     handleVerificarCargo: () => { },
-    handleResponderChamado: () => { },
     handleCarregarChamados: () => { },
     handleCarregarLojasAdmin: () => { },
-    handleCarregarChamadoLojaDialog: () => { },
+    handleAlterarCargoUsuario: () => { },
 })
 
 export const useAdminContext = () => React.useContext(AdminContext)
@@ -35,12 +32,11 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     const [isAdmin, setIsAdmin] = React.useState<boolean>(false)
     const [usuarios, setUsuarios] = React.useState<IUser[]>([])
     const [lerChamadosAdmin, setLerChamadosAdmin] = React.useState<ILerChamadosAdminProps[]>([])
-    const [addChamadosAdmin, setaddChamadosAdmin] = React.useState<IGerenciarChamadosAdminProps>(chamadoAdminInicial)
-    const [lerLojasAdmin, setLerLojasAdmin] = React.useState<ILojasContextProps[]>([])
-    const [lojaSelecionada, setLojaSelecionada] = React.useState<IUser | null>(null)
-    const [chamadoSelecionado, setChamadoSelecionado] = React.useState<ILerChamadosAdminProps | null>(null)
-    const [usuarioSelecionado, setUsuarioSelecionado] = React.useState<IUser>()
-    const { setLoading } = useLoadingAndStatusContext()
+    const [lerLojasAdmin, setLerLojasAdmin] = React.useState<ILoja[]>([])
+    const [lojaSelecionada, setLojaSelecionada] = React.useState<ILoja>(lojaInicial)
+    const [chamadoSelecionado, setChamadoSelecionado] = React.useState<IChamadoDetalhado | null>(null)
+    const memorizeLojasAdmin = useMemo(() => lerLojasAdmin, [lerLojasAdmin])
+    const { setLoading, setSuccess, setError } = useLoadingAndStatusContext()
 
     const handleObterUsuarios = async () => {
         try {
@@ -52,7 +48,10 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
                 return
             }
 
-            const usuarios = querySnapshot.docs.map((doc) => doc.data())
+            const usuarios = querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data()
+            }))
             setUsuarios(usuarios as IUser[])
             localStorage.setItem("usuarios", JSON.stringify(usuarios))
         } catch (error) {
@@ -90,10 +89,6 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
-    const handleResponderChamado = async () => {
-        console.log("Responder Chamado function called")
-    }
-
     const handleCarregarLojasAdmin = async () => {
         setLoading(true)
         try {
@@ -122,7 +117,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
                 ...doc.data(),
             }))
             setLerChamadosAdmin(chamadosData as ILerChamadosAdminProps[])
-            localStorage.setItem("chamadosAdmin", JSON.stringify(chamadosData))
+            // localStorage.setItem("chamadosAdmin", JSON.stringify(chamadosData))
         } catch (error) {
             console.error("Erro ao carregar chamados:", error)
         } finally {
@@ -130,59 +125,55 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
-    const handleCarregarChamadoLojaDialog = async (chamadoId: string) => {
+    const handleAlterarCargoUsuario = async (usuario: IUser, novoCargo: string) => {
         setLoading(true)
         try {
-            const chamadosStorage = localStorage.getItem("chamadosAdmin")
-            const lojasStorage = localStorage.getItem("lojasAdmin")
+            // 1. Referência para a COLEÇÃO de usuários
+            const usuariosRef = collection(db, "usuarios")
 
-            if (chamadosStorage && lojasStorage) {
-                const chamadosData = JSON.parse(chamadosStorage) as ILerChamadosAdminProps[]
-                const lojasData = JSON.parse(lojasStorage) as IUser[]
+            // 2. Consulta para encontrar o usuário pelo campo 'id' (ou qualquer que seja o campo)
+            if (!usuario.id) {
+                setError("Usuário não encontrado")
+                setLoading(false)
+                return
+            }
+            const q = query(usuariosRef, where("id", "==", usuario.id))
+            const querySnapshot = await getDocs(q)
 
-                const chamado = chamadosData.find(c => c.id === chamadoId)
-                const lojaIdDoChamado = chamado?.id
-                const loja = lojasData.find(buscaLoja => buscaLoja.id === lojaIdDoChamado)
 
-                if (chamado) {
-                    setChamadoSelecionado(chamado)
-                } else {
-                    console.error("Chamado não encontrado")
-                    setChamadoSelecionado(null)
-                }
-
-                if (loja) {
-                    setLojaSelecionada(loja)
-                } else {
-                    console.error("Loja não encontrada")
-                    setLojaSelecionada(null)
-                }
-            } else {
-                setChamadoSelecionado(null)
-                setLojaSelecionada(null)
+            // 3. Verificar se encontrou o usuário
+            if (querySnapshot.empty) {
+                setError("Usuário não encontrado.")
+                setLoading(false)
+                return
             }
 
-        } catch (error) {
-            console.error("Erro ao carregar detalhes do chamado e loja do localStorage:", error)
-            setChamadoSelecionado(null)
-            setLojaSelecionada(null)
+            // 4. Pegar a referência do documento (agora com o ID correto do Firestore)
+            const userDocRef = querySnapshot.docs[0].ref
+
+            // 5. Atualizar o documento
+            await updateDoc(userDocRef, {
+                cargo: novoCargo
+            })
+
+            // 6. Atualizar o estado local (agora a comparação funciona, pois u.id é o id do doc)
+            setUsuarios(prevUsuarios =>
+                prevUsuarios.map(u =>
+                    u.id === usuario.id ? { ...u, cargo: novoCargo } : u
+                )
+            )
+            setSuccess("Cargo alterado com sucesso!")
+
+
+        } catch (error: any) {
+            console.error("Erro ao alterar cargo do usuário: ", error)
+            setError("Erro ao alterar cargo. Tente novamente.")
         } finally {
             setLoading(false)
         }
     }
 
-    const handleAlterarCargoUsuario = async () => {
-        setLoading(true)
-        try {
-
-
-        } catch (error) {
-            console.error("Erro ao alterar cargo do usuário: ", error)
-        }
-    }
-
     React.useEffect(() => {
-        handleCarregarChamados()
         handleCarregarLojasAdmin()
     }, [])
 
@@ -191,24 +182,21 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
             value={{
                 isAdmin,
                 usuarios,
-                lerLojasAdmin,
+                lerLojasAdmin: memorizeLojasAdmin,
                 lojaSelecionada,
                 lerChamadosAdmin,
-                addChamadosAdmin,
                 chamadoSelecionado,
                 setIsAdmin,
                 setUsuarios,
                 setLerLojasAdmin,
                 setLojaSelecionada,
-                setaddChamadosAdmin,
                 setLerChamadosAdmin,
                 setChamadoSelecionado,
                 handleObterUsuarios,
                 handleVerificarCargo,
-                handleResponderChamado,
                 handleCarregarChamados,
                 handleCarregarLojasAdmin,
-                handleCarregarChamadoLojaDialog,
+                handleAlterarCargoUsuario,
             }}
         >
             {children}

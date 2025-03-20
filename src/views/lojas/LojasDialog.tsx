@@ -6,7 +6,7 @@ import { useLoadingAndStatusContext } from "@/src/context/LoadingAndStatus"
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid2, IconButton, Typography } from "@mui/material"
 
 export default function LojasDialog({ usuario, dialogName, lojaData }: ILojasDialogProps) {
-    const { dialogOpenName, handleCancelar, handleOpenDialog } = useLoadingAndStatusContext()
+    const { dialogOpen, handleCancelar, handleOpenDialog } = useLoadingAndStatusContext()
 
     const lojasAdminLocalStorage = localStorage.getItem("lojasAdmin")
     let lojaDoUsuario = null
@@ -32,7 +32,7 @@ export default function LojasDialog({ usuario, dialogName, lojaData }: ILojasDia
                     color={temLoja ? "success" : "disabled"}
                 />
             </IconButton>
-            <Dialog open={dialogOpenName === dialogName} aria-hidden="false" onClose={handleCancelar} fullWidth>
+            <Dialog open={dialogOpen === dialogName} aria-hidden="false" onClose={handleCancelar} fullWidth>
                 <Grid2 display="flex" justifyContent="center" alignItems="center" gap={2}>
                     <DialogTitle>
                         <Typography variant="h5" fontWeight="bold" component="div">

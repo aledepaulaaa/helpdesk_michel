@@ -8,6 +8,7 @@ import { DashboardProvider } from "../context/DashboardContext"
 import { TableProvider } from "../context/TableContext"
 import { AcoesChamadoProvider } from "../context/AcoesChamadoContext"
 import { LojasContextProvider } from "../context/LojasContext"
+import { ChamadosProvider } from "../context/ChamadosContext"
 
 export default function App({ Component, pageProps }: AppProps) {
 
@@ -16,16 +17,18 @@ export default function App({ Component, pageProps }: AppProps) {
             <AdminProvider>
                 <LojasContextProvider>
                     <AcoesChamadoProvider>
-                        <TableProvider>
-                            <DashboardProvider>
-                                <ThemeProvider>
-                                    <AuthContextProvider>
-                                        <CssBaseline />
-                                        <Component {...pageProps} />
-                                    </AuthContextProvider>
-                                </ThemeProvider>
-                            </DashboardProvider>
-                        </TableProvider>
+                        <ChamadosProvider>
+                            <TableProvider>
+                                <DashboardProvider>
+                                    <ThemeProvider>
+                                        <AuthContextProvider>
+                                            <CssBaseline />
+                                            <Component {...pageProps} />
+                                        </AuthContextProvider>
+                                    </ThemeProvider>
+                                </DashboardProvider>
+                            </TableProvider>
+                        </ChamadosProvider>
                     </AcoesChamadoProvider>
                 </LojasContextProvider>
             </AdminProvider>

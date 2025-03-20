@@ -1,5 +1,4 @@
 import React from "react"
-import { IUser } from "../interfaces/authcontext/IUser"
 import { useLojaContext } from "./LojasContext"
 import { ILoadingAndStatusProps } from "../interfaces/ILoadingAndStatusProps"
 
@@ -7,11 +6,11 @@ export const LoadingAndStatusContext = React.createContext<ILoadingAndStatusProp
     loading: false,
     error: "",
     success: "",
-    dialogOpenName: null,
+    dialogOpen: "",
     setError: () => { },
     setSuccess: () => { },
     setLoading: () => { },
-    setDialogOpenName: () => { },
+    setDialogOpen: () => { },
     handleCancelar: () => { },
     handleOpenDialog: () => { },
     handleCloseDialog: () => { },
@@ -23,16 +22,16 @@ export const LoadingAndStatusProvider = ({ children }: { children: React.ReactNo
     const [loading, setLoading] = React.useState<boolean>(false)
     const [error, setError] = React.useState<string | null>(null)
     const [success, setSuccess] = React.useState<string | null>(null)
-    const [dialogOpenName, setDialogOpenName] = React.useState<string | null>(null)
+    const [dialogOpen, setDialogOpen] = React.useState<string | null>(null)
     const { usuarioSelecionado, setUsuarioSelecionado } = useLojaContext()
 
     const handleOpenDialog = (dialogName: string) => {
-        setDialogOpenName(dialogName)
+        setDialogOpen(dialogName)
         setUsuarioSelecionado(usuarioSelecionado)
     }
 
     const handleCloseDialog = () => {
-        setDialogOpenName(null)
+        setDialogOpen(null)
     }
 
     const handleCancelar = () => {
@@ -55,11 +54,11 @@ export const LoadingAndStatusProvider = ({ children }: { children: React.ReactNo
                 error,
                 success,
                 loading,
-                dialogOpenName,
+                dialogOpen,
                 setError,
                 setSuccess,
                 setLoading,
-                setDialogOpenName,
+                setDialogOpen,
                 handleCancelar,
                 handleCloseDialog,
                 handleOpenDialog,

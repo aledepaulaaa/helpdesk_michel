@@ -7,14 +7,14 @@ import { Dialog, DialogContent, DialogTitle, Grid2, IconButton, Typography } fro
 const dialogName = "AcoesChamados"
 
 export default function AcoesChamados() {
-    const { dialogOpenName, handleCloseDialog, handleCancelar } = useLoadingAndStatusContext()
+    const { dialogOpen, handleCloseDialog, handleCancelar } = useLoadingAndStatusContext()
 
     return (
         <Grid2>
             <IconButton onClick={handleCloseDialog}>
                 <VisibilityIcon />
             </IconButton>
-            <Dialog open={dialogOpenName === dialogName} onClose={handleCancelar} fullWidth>
+            <Dialog open={dialogOpen === dialogName} onClose={handleCancelar} fullWidth>
                 <Grid2 display="flex" justifyContent="center" alignItems="center" gap={2}>
                     <DialogTitle>
                         <Typography variant="h5" fontWeight="bold" component="div">

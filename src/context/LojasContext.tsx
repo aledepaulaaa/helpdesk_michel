@@ -1,14 +1,15 @@
 import React from "react"
-import { auth, db } from "../db/firebase"
+import { db } from "../db/firebase"
 import { initialUser, IUser } from "../interfaces/authcontext/IUser"
 import { useLoadingAndStatusContext } from "./LoadingAndStatus"
 import { ILojasContextProps } from "../interfaces/ILojasContextProps"
 import { collection, deleteDoc, doc, getDocs, setDoc } from "firebase/firestore"
+import { ILoja, lojaInicial } from "../interfaces/ILoja"
 
 export const LojasContext = React.createContext<ILojasContextProps>({
-    lojas: initialUser,
+    lojas: lojaInicial,
     usuarioSelecionado: initialUser,
-    carregarLojas: [],
+    carregarLojas: lojaInicial,
     setLojas: () => { },
     setCarregarLojas: () => { },
     setUsuarioSelecionado: () => { },
@@ -20,8 +21,8 @@ export const LojasContext = React.createContext<ILojasContextProps>({
 export const useLojaContext = () => React.useContext(LojasContext)
 
 export const LojasContextProvider = ({ children }: { children: React.ReactNode }) => {
-    const [lojas, setLojas] = React.useState<IUser>(initialUser)
-    const [carregarLojas, setCarregarLojas] = React.useState<any>({})
+    const [lojas, setLojas] = React.useState<ILoja>(lojaInicial)
+    const [carregarLojas, setCarregarLojas] = React.useState<ILoja>(lojaInicial)
     const [usuarioSelecionado, setUsuarioSelecionado] = React.useState<IUser>(initialUser)
     const { setSuccess, setError, setLoading, handleCloseDialog } = useLoadingAndStatusContext()
 
@@ -52,7 +53,7 @@ export const LojasContextProvider = ({ children }: { children: React.ReactNode }
         setLoading(true)
         try {
             const lojaDocRef = doc(db, "lojas", userId)
-            await setDoc(lojaDocRef, { loja: lojas.loja }, { merge: true })
+            await setDoc(lojaDocRef, { userId: userId, loja: lojas.loja }, { merge: true })
 
             setSuccess("Loja cadastrada com sucesso!")
             await handleBuscarLojas()

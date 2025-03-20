@@ -1,15 +1,15 @@
 import MapsUgcIcon from "@mui/icons-material/MapsUgc"
 import AddIcCallIcon from "@mui/icons-material/AddIcCall"
 import StatusELoading from "../../statusloading/StatusELoading"
-import { useChamadoContext } from "@/src/context/AcoesChamadoContext"
 import { useLoadingAndStatusContext } from "@/src/context/LoadingAndStatus"
 import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Grid2, TextField, Typography } from "@mui/material"
+import { useAcoesChamacoContext } from "@/src/context/AcoesChamadoContext"
 
 const dialogName = "EnviarChamadosDialog"
 
 export default function EnviarChamadosDialog() {
-    const { loading, dialogOpenName, handleCancelar, handleOpenDialog } = useLoadingAndStatusContext()
-    const { addChamados, setAddChamados, handleSalvarChamado } = useChamadoContext()
+    const { loading, dialogOpen, handleCancelar, handleOpenDialog } = useLoadingAndStatusContext()
+    const { addChamados, setAddChamados, handleSalvarChamado } = useAcoesChamacoContext()
 
     const handleOpenEnviarChamadosDialog = () => {
         handleOpenDialog(dialogName)
@@ -26,7 +26,7 @@ export default function EnviarChamadosDialog() {
             >
                 abrir chamado
             </Button>
-            <Dialog open={dialogOpenName === dialogName} onClose={handleCancelar} fullWidth>
+            <Dialog open={dialogOpen === dialogName} onClose={handleCancelar} fullWidth>
                 <Grid2 display="flex" justifyContent="center" alignItems="center" gap={2}>
                     <DialogTitle>
                         <Typography variant="h5" fontWeight="bold" component="div">

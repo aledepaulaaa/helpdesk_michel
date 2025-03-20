@@ -5,11 +5,11 @@ export interface ILoadingAndStatusProps {
     loading: boolean
     error: string | null
     success: string | null
-    dialogOpenName: string | null
+    dialogOpen: string | null
     setError: React.Dispatch<React.SetStateAction<string | null>>
     setLoading: React.Dispatch<React.SetStateAction<boolean>>
     setSuccess: React.Dispatch<React.SetStateAction<string | null>>
-    setDialogOpenName: React.Dispatch<React.SetStateAction<string | null>>
+    setDialogOpen: React.Dispatch<React.SetStateAction<string | null>>
     handleCancelar: () => void
     handleOpenDialog: (dialogName: string) => void
     handleCloseDialog: () => void

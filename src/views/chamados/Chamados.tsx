@@ -4,13 +4,17 @@ import TabelaChamadosAdmin from "@/src/components/tables/chamados/TabelaChamados
 import { useAdminContext } from "@/src/context/AdminContext"
 import { useLoadingAndStatusContext } from "@/src/context/LoadingAndStatus"
 import { Card, CircularProgress, Typography } from "@mui/material"
+import { useAcoesChamacoContext } from "@/src/context/AcoesChamadoContext"
 
 export default function Chamados() {
     const { loading } = useLoadingAndStatusContext()
-    const { isAdmin, handleVerificarCargo } = useAdminContext()
+    const { isAdmin, handleVerificarCargo, handleCarregarChamados } = useAdminContext()
+    const { handleObterChamados } = useAcoesChamacoContext()
 
     React.useEffect(() => {
         handleVerificarCargo()
+        handleCarregarChamados()
+        handleObterChamados()
     }, [])
 
     if (loading) {

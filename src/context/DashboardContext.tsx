@@ -4,6 +4,7 @@ import Dashboard from "../components/dashboard/Dashboard"
 import Chamados from "../views/chamados/Chamados"
 import Perfil from "../views/perfil/Perfil"
 import GerirLojas from "../views/lojas/GerirLojas"
+import Relatorios from "../views/relatorios/Relatorios"
 
 export const DashboardContext = React.createContext<IDashboardProps>({
     children: null,
@@ -24,7 +25,7 @@ export const DashboardProvider = ({ children }: { children: React.ReactNode }) =
             case "Gerir Lojas":
                 return <GerirLojas />
             case "Relátorios":
-                return <></>
+                return <Relatorios />
             case "Perfil":
                 return <Perfil />
             default:

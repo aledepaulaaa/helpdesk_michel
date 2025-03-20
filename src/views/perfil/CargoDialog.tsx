@@ -1,30 +1,64 @@
-import ModeIcon from "@mui/icons-material/Mode"
+import React from "react"
 import StatusELoading from "@/src/components/statusloading/StatusELoading"
-import { useLoadingAndStatusContext } from "@/src/context/LoadingAndStatus"
-import { Button, Dialog, DialogActions, DialogContent, Grid2, IconButton } from "@mui/material"
+import { useAdminContext } from "@/src/context/AdminContext"
+import { ICargoDialogProps } from "@/src/interfaces/ICargoDialogProps"
+import { Button, Dialog, DialogActions, DialogContent, Grid2, Select, MenuItem, InputLabel, FormControl, Typography, SelectChangeEvent } from "@mui/material"
 
-const dialogName = "CargoDialog"
+export default function CargoDialog({ isOpen, onClose, usuario }: ICargoDialogProps) {
+    const { handleAlterarCargoUsuario } = useAdminContext()
+    const [selectedCargo, setSelectedCargo] = React.useState<string>("Usuário")
 
-export default function CargoDialog({ dialogOpenName }: { dialogOpenName: string }) {
-    const { handleCancelar, handleOpenDialog } = useLoadingAndStatusContext()
+    React.useEffect(() => {
+        if (isOpen) {
+            setSelectedCargo("Usuário")
+        }
+    }, [isOpen, usuario])
 
-    const handleOpenLojaDialog = () => {
-        handleOpenDialog(dialogName)
+    const handleChangeCargo = (event: SelectChangeEvent<string>) => {
+        setSelectedCargo(event.target.value)
+    }
+
+    const handleConfirmarAlteracao = async () => {
+        if (usuario) {
+            await handleAlterarCargoUsuario(usuario, selectedCargo)
+            onClose()
+        }
     }
 
     return (
         <Grid2 container spacing={2}>
-            <IconButton onClick={handleOpenLojaDialog}>
-                <ModeIcon
-                    color="primary"
-                />
-            </IconButton>
-            <Dialog open={dialogOpenName === dialogName} aria-hidden="false" onClose={handleCancelar} fullWidth>
+            <Dialog
+                fullWidth
+                aria-hidden={false}
+                open={isOpen}
+                onClose={onClose}
+            >
                 <DialogContent>
-                    Alterar Cargo
+                    <Typography variant="h6" gutterBottom>
+                        Alterar Cargo
+                    </Typography>
+                    <FormControl fullWidth>
+                        <InputLabel id="cargo-select-label">Cargo</InputLabel>
+                        <Select
+                            labelId="cargo-select-label"
+                            id="cargo-select"
+                            value={selectedCargo}
+                            label="Cargo"
+                            onChange={handleChangeCargo}
+                        >
+                            <MenuItem value="Admin">Admin</MenuItem>
+                            <MenuItem value="Usuário">Usuário</MenuItem>
+                            <MenuItem value="Inativo">Inativo</MenuItem>
+                        </Select>
+                    </FormControl>
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="contained" onClick={handleCancelar}>Fechar</Button>
+                    <Button variant="outlined" sx={{ color: "white" }} onClick={onClose}>
+                        Cancelar
+                    </Button>
+                    <Button variant="contained" sx={{ color: "white" }} onClick={handleConfirmarAlteracao}>
+                        Confirmar
+                    </Button>
                 </DialogActions>
                 <StatusELoading />
             </Dialog>

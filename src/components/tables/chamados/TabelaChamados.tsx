@@ -3,17 +3,13 @@ import Image from "next/image"
 import EnviarChamadosDialog from "./EnviarChamadosDialog"
 import PaginacaoTabelaChamados from "./PaginacaoTabelaChamados"
 import { IChamadoCompleto } from "@/src/interfaces/IAcoesChamadoContextProps"
+import { useAcoesChamacoContext } from "@/src/context/AcoesChamadoContext"
 import { useTableContext } from "@/src/context/TableContext"
-import { useChamadoContext } from "@/src/context/AcoesChamadoContext"
 import { Chip, Grid2, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material"
 
 export default function TabelaChamados() {
     const { mdSize, handleStatusColor } = useTableContext()
-    const { chamados, handleObterChamados, chamadosPaginados } = useChamadoContext()
-
-    React.useEffect(() => {
-        handleObterChamados()
-    }, [])
+    const { chamados, chamadosPaginados } = useAcoesChamacoContext()
 
     return (
         <Grid2 container spacing={2}>

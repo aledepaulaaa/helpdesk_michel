@@ -1,5 +1,3 @@
-import { IUser } from "./authcontext/IUser"
-
 export interface IDetalhesChamado {
     solicitacao: string
     status: string
@@ -7,33 +5,21 @@ export interface IDetalhesChamado {
 }
 
 export interface IChamadoCompleto {
-    id: string
     data: string
-    titulo: string
+    lojaId: string
     solicitacao: string
     status: string
-    loja: IUser
+    titulo: string
+    userId: string
 }
 
 export const chamadocompletoInicial: IChamadoCompleto = {
-    id: "",
     data: "",
-    titulo: "",
+    lojaId: "",
     solicitacao: "",
     status: "",
-    loja:{
-        id: "",
-        cargo: "",
-        loja:{
-            id: "",
-            sigla: "",
-            cnpj: "",
-            responsavel: "",
-        },
-        email: "",
-        name: "",
-        password: "",
-    }
+    titulo: "",
+    userId: "",
 }
 
 export const detalhechamadoInicial: IDetalhesChamado = {
